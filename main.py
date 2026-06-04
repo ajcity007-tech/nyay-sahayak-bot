@@ -1,66 +1,62 @@
 import os
-import requests
+import sys
 import telebot
 
-# -------------------------------------------------------------------
-# Configuration - token is injected securely by GitHub Actions at runtime
-# -------------------------------------------------------------------
+# ── Token Verification ─────────────────────────────────────────────────────
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
 if not TOKEN:
-    raise EnvironmentError(
-        "TELEGRAM_TOKEN environment variable is not set. "
-        "Add it as a GitHub Secret (Settings -> Secrets -> Actions)."
-    )
+    print("FATAL: TELEGRAM_TOKEN secret is missing or empty.")
+    sys.exit(1)
 
-bot = telebot.TeleBot(TOKEN)
-
-# Use the channel's @username exactly as it appears on Telegram
+# ── Target Channel Username ────────────────────────────────────────────────
 CHANNEL_ID = "@nyaysahayak_ai"
 
-# -------------------------------------------------------------------
-# Content generator - replace the body of this function with your real
-# content source (RSS feed, API call, database query, etc.)
-# -------------------------------------------------------------------
-def fetch_legal_updates() -> str:
-    """
-    Returns the daily legal current affairs message.
-    Customise this function to pull live content from any source you like.
-    """
-    update = (
-        "⚖️ *Daily Legal Current Affairs – @nyaysahayak_ai*\n\n"
-        "📌 *Supreme Court*\n"
-        "• Landmark judgment updates from today's cause list.\n\n"
-        "📌 *Legislative Updates*\n"
-        "• Key amendments and bills tabled in Parliament.\n\n"
-        "📌 *High Court Roundup*\n"
-        "• Important orders from High Courts across India.\n\n"
-        "📌 *Exam Relevance*\n"
-        "• Key points for Judiciary / APO / CLAT PG aspirants.\n\n"
-        "_Stay updated. Stay ahead._ 🇮🇳"
-    )
-    return update
+# ── Initialize Bot ─────────────────────────────────────────────────────────
+bot = telebot.TeleBot(TOKEN)
 
-# -------------------------------------------------------------------
-# Broadcaster
-# -------------------------------------------------------------------
+# ── Content Blueprint ──────────────────────────────────────────────────────
+def fetch_legal_updates() -> str:
+    return (
+        "⚖️ *Daily Legal Current Affairs*\n"
+        "📡 *Channel: @nyaysahayak_ai*\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        "🏛 *Supreme Court of India*\n"
+        "• Today's landmark judgment highlights\n"
+        "• Important constitutional bench updates\n\n"
+        "📜 *Legislative Updates*\n"
+        "• Key amendments tabled in Parliament\n"
+        "• BNS / BNSS / BSA 2023 implementation news\n\n"
+        "🏢 *High Court Roundup*\n"
+        "• Significant orders across India\n\n"
+        "📚 *Exam Relevance — Judiciary / APO / CLAT PG*\n"
+        "• Key points for competitive law aspirants\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━━\n"
+        "_Stay updated. Stay ahead._ 🇮🇳\n"
+        "*@nyaysahayak\\_ai* | Powered by @nyaysahayakbot"
+    )
+
+# ── Broadcast Execution ────────────────────────────────────────────────────
 def send_broadcast():
+    print(f"Attempting broadcast to channel: {CHANNEL_ID}")
     try:
         message = fetch_legal_updates()
         bot.send_message(
             chat_id=CHANNEL_ID,
             text=message,
-            parse_mode="Markdown",  # supports *bold*, _italic_, etc.
+            parse_mode="Markdown",
         )
-        print("✅ Broadcast sent successfully to", CHANNEL_ID)
+        print("SUCCESS: Message successfully delivered to the channel.")
     except telebot.apihelper.ApiTelegramException as e:
-        print(f"❌ Telegram API error: {e}")
-        raise  # re-raise so GitHub Actions marks the run as failed
+        print(f"TELEGRAM API ERROR: {e}")
+        print("\n💡 ACTIONABLE TROUBLESHOOTING CHECKLIST:")
+        print("1. Open Telegram and go to your channel: @nyaysahayak_ai")
+        print("2. Go to channel settings -> Administrators -> Add Administrator.")
+        print("3. Search for exactly: @nyaysahayakbot")
+        print("4. Make sure 'Post Messages' permission is switched ON.")
+        raise
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+        print(f"UNEXPECTED SYSTEM ERROR: {e}")
         raise
 
-# -------------------------------------------------------------------
-# Entry point
-# -------------------------------------------------------------------
 if __name__ == "__main__":
     send_broadcast()
