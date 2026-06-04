@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 
 # --- CONFIGURATION ---
-TELEGRAM_CHANNEL = "@NyaySahayakAI" 
+TELEGRAM_CHANNEL = "@Nyay_Sahayak_AI" 
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 def fetch_legal_news():
