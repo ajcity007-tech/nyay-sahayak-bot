@@ -2,12 +2,10 @@ name: Daily Legal Current Affairs Broadcaster
 
 on:
   schedule:
-    # Runs every day at 08:00 AM IST (02:30 UTC).
-    # GitHub Actions uses UTC, so IST = UTC + 5:30.
-    # Adjust the cron expression below if you want a different time.
+    # Trigger automatically at 08:00 AM IST (02:30 AM UTC) daily
     - cron: '30 2 * * *'
-
-  # Allows you to run this workflow manually from the Actions tab
+    
+  # Allows manual testing execution via the Actions tab interface
   workflow_dispatch:
 
 jobs:
@@ -15,33 +13,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # -----------------------------------------------------------------
-    # Step 1: Check out the repository so all files are available
-    # -----------------------------------------------------------------
-    - name: Checkout Repository Code
-      uses: actions/checkout@v4      # v4 is the current stable release
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
 
-    # -----------------------------------------------------------------
-    # Step 2: Set up Python
-    # -----------------------------------------------------------------
-    - name: Setup Python Environment
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-        cache: 'pip'                 # caches pip downloads for faster runs
+      - name: Setup Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    # -----------------------------------------------------------------
-    # Step 3: Install dependencies
-    # -----------------------------------------------------------------
-    - name: Install Dependencies
-      run: pip install requests pyTelegramBotAPI
+      - name: Install Project Dependencies
+        run: pip install -r requirements.txt
 
-    # -----------------------------------------------------------------
-    # Step 4: Run the broadcaster
-    # The script lives at the ROOT of the repository (same level as this
-    # .github/ folder), so "python main.py" resolves correctly.
-    # -----------------------------------------------------------------
-    - name: Execute Broadcaster Script
-      env:
-        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-      run: python main.py
+      - name: Execute Broadcaster Script
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+        run: python main.py
