@@ -24,4 +24,4 @@ jobs:
       - name: Execute Broadcaster Script
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-        run: python nyay-sahayak-bot.py
+        run: python nyay_sahayak_bot.py
