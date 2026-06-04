@@ -23,6 +23,4 @@ jobs:
       - name: Execute Broadcaster Script
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-        run: |
-          TARGET_FILE=$(ls *bot.py | head -n 1)
-          python "$TARGET_FILE"
+        run: python nyay_sahayak_bot.py
