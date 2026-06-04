@@ -1,0 +1,71 @@
+import os
+import requests
+import xml.etree.ElementTree as ET
+from datetime import datetime
+
+# --- CONFIGURATION ---
+TELEGRAM_CHANNEL = "@NyaySahayakAI" 
+TOKEN = os.getenv("TELEGRAM_TOKEN")
+
+def fetch_legal_news():
+    """Fetches the latest legal current affairs directly from XML feeds"""
+    news_items = []
+    feeds = [
+        {"name": "Bar & Bench", "url": "https://www.barandbench.com/feeds/feeds.rss"},
+        {"name": "LiveLaw", "url": "https://www.livelaw.in/top-stories/feed"}
+    ]
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+    
+    for feed in feeds:
+        try:
+            response = requests.get(feed["url"], headers=headers, timeout=15)
+            if response.status_code == 200:
+                root = ET.fromstring(response.content)
+                for item in root.findall('.//item')[:3]: 
+                    title = item.find('title').text.strip()
+                    link = item.find('link').text.strip()
+                    news_items.append({"title": title, "link": link, "source": feed["name"]})
+        except Exception as e:
+            print(f"Error fetching from {feed['name']}: {e}")
+    return news_items
+
+def format_and_send():
+    if not TOKEN:
+        print("Error: TELEGRAM_TOKEN missing!")
+        return
+
+    news = fetch_legal_news()
+    if not news:
+        print("No new updates found right now.")
+        return
+
+    # Premium current affairs schedule layout
+    message = "⚖️ *NYAY SAHAYAK AI: DAILY LEGAL CURRENT AFFAIRS* ⚖️\n"
+    message += f"📅 *Date:* {datetime.now().strftime('%d %B %Y')}\n"
+    message += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+    
+    for i, item in enumerate(news, 1):
+        message += f"{i}️⃣ *{item['title']}*\n"
+        message += f"🌐 _Source: {item['source']}_\n"
+        message += f"🔗 [Read Full Analysis]({item['link']})\n"
+        message += "──────────────────────────\n\n"
+        
+    message += "📢 *Updates by Anuj Pandit (Ajay City 1007)*\n"
+    message += "👉 Stay ahead in your studies with daily notifications!"
+
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHANNEL,
+        "text": message,
+        "parse_mode": "Markdown",
+        "disable_web_page_preview": False
+    }
+    
+    res = requests.post(url, json=payload)
+    if res.status_code == 200:
+        print("Success! News broadcasted successfully.")
+    else:
+        print(f"Failed to send message: {res.text}")
+
+if __name__ == "__main__":
+    format_and_send()
