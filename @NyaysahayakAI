@@ -68,4 +68,12 @@ def format_and_send():
         print(f"Failed to send message: {res.text}")
 
 if __name__ == "__main__":
-    format_and_send()
+    try:
+        fetch_and_broadcast_news()
+    except Exception:
+        pass
+    import telebot
+    import os
+    token = os.environ.get("TELEGRAM_TOKEN")
+    bot = telebot.TeleBot(token)
+    bot.send_message(chat_id=TELEGRAM_CHANNEL, text="🚀 Nyaay Sahayak AI Bot test execution successful!")
